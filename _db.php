@@ -1,9 +1,9 @@
 <?php
-$host = "shortline.proxy.rlwy.net"; // или другой host, который даст Railway
-$port = 58433;
-$username = "root";
-$password = "OyDNrxEeeGyzZqmjEcdOtcTpXUvcVZrA";
-$database = "railway";
+$host = getenv('MYSQLHOST');
+$port = getenv('MYSQLPORT');
+$username = getenv('MYSQLUSER');
+$password = getenv('MYSQLPASSWORD');
+$database = getenv('MYSQLDATABASE');
 
 try {
     $db = new PDO(
@@ -12,7 +12,7 @@ try {
         $password
     );
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+} catch (PDOException $ex) {
+    die("Database connection failed: " . $ex->getMessage());
 }
 ?>
