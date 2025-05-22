@@ -1,7 +1,5 @@
-$(function() {
-
+$(function () {
     const dp = new DayPilot.Scheduler("dp", {
-
         cellWidth: 100,
         cellWidthSpec: "Fixed",
         heightSpec: "Max",
@@ -12,8 +10,8 @@ $(function() {
             { title: "Status", display: "status", width: 80 }
         ],
         scale: "Day",
-        startDate: "2025-05-20",
-        days: 30,
+        startDate: DayPilot.Date.today().firstDayOfMonth(),
+        days: DayPilot.Date.today().daysInMonth(),
         timeHeaders: [
             { groupBy: "Month", format: "MMMM yyyy" },
             { groupBy: "Day", format: "d" }
@@ -21,7 +19,7 @@ $(function() {
         allowEventOverlap: false,
         timeRangeSelectedHandling: "Enabled",
         eventClickHandling: "Enabled",
-        eventDeleteHandling: "Update",
+        eventDeleteHandling: "Update", // Обов'язково!
         eventMoveHandling: "Update",
         eventResizeHandling: "Update",
 
@@ -40,25 +38,113 @@ $(function() {
         },
 
         onBeforeEventRender: function(args) {
-            const barColors = {
-                "Arrived": "#57b540",
-                "Confirmed": "#2b7a2e",
-                "New": "#e69138",
-                "CheckedOut": "#0c539e",
-                "Expired": "#cc0000",
-                "confirmed": "#2b7a2e",
-                "pending": "#e69138",
-                "cancelled": "#cc0000"
-            };
-            args.data.barColor = barColors[args.data.status] || "#999";
-            args.data.html = `${args.data.text}<br/><small>Paid: ${args.data.paid * 100}%</small>`;
+            var start = new DayPilot.Date(args.data.start);
+            var end = new DayPilot.Date(args.data.end);
+
+            var today = DayPilot.Date.today();
+            var now = new DayPilot.Date();
+
+            args.data.html = args.data.text + " (" + start.toString("M/d/yyyy") + " - " + end.toString("M/d/yyyy") + ")";
+
+            switch (args.data.status) {
+                case "New":
+                    var in2days = today.addDays(1);
+                    if (start < in2days) {
+                        args.data.barColor = 'red';
+                        args.data.toolTip = 'Застаріле (не підтверджено вчасно)';
+                    } else {
+                        args.data.barColor = 'orange';
+                        args.data.toolTip = 'Новий';
+                    }
+                    break;
+                case "Confirmed":
+                    var arrivalDeadline = today.addHours(18);
+                    if (start < today || (start.getDatePart() === today.getDatePart() && now > arrivalDeadline)) {
+                        args.data.barColor = "#f41616";  // red
+                        args.data.toolTip = 'Пізнє прибуття';
+                    } else {
+                        args.data.barColor = "green";
+                        args.data.toolTip = "Підтверджено";
+                    }
+                    break;
+                case 'Arrived':
+                    var checkoutDeadline = today.addHours(10);
+                    if (end < today || (end.getDatePart() === today.getDatePart() && now > checkoutDeadline)) {
+                        args.data.barColor = "#f41616";  // red
+                        args.data.toolTip = "Пізній виїзд";
+                    } else {
+                        args.data.barColor = "#1691f4";  // blue
+                        args.data.toolTip = "Прибув";
+                    }
+                    break;
+                case 'CheckedOut':
+                    args.data.barColor = "gray";
+                    args.data.toolTip = "Перевірено";
+                    break;
+                default:
+                    args.data.toolTip = "Невизначений стан";
+                    break;
+            }
+
+            args.data.html = args.data.html + "<br /><span style='color:gray'>" + args.data.toolTip + "</span>";
+
+            var paid = args.data.paid || 0;
+            var paidColor = "#aaaaaa";
+            args.data.areas = [
+                { bottom: 10, right: 4, html: "<div style='color:" + paidColor + "; font-size: 8pt;'>Paid: " + paid + "%</div>", v: "Visible"},
+                { left: 4, bottom: 8, right: 4, height: 2, html: "<div style='background-color:" + paidColor + "; height: 100%; width:" + paid + "%'></div>", v: "Visible" }
+            ];
+        },
+
+        onEventMoved: function(args) {
+            $.post("backend_move.php", {
+                id: args.e.data.id,
+                newStart: args.newStart.toString(),
+                newEnd: args.newEnd.toString(),
+                newResource: args.newResource
+            }, function(data) {
+                if (data.result === "OK") {
+                    dp.message(data.message);
+                    loadEvents();
+                } else {
+                    dp.message(data.message, {type: "error"});
+                    loadEvents();
+                }
+            }, "json");
+        },
+
+        onEventResized: function(args) {
+            $.post("backend_update.php", {
+                id: args.e.data.id,
+                start: args.newStart.toString(),
+                end: args.newEnd.toString(),
+                room: args.e.data.resource,
+                name: args.e.data.text,
+                status: args.e.data.status,
+                paid: args.e.data.paid
+            }, loadEvents);
+        },
+
+        onEventDeleted: function(args) {
+            $.post("backend_delete.php",
+                { id: args.e.data.id },
+                function(data) {
+                    if (data.result === "OK") {
+                        dp.message(data.message);
+                        loadEvents();
+                    } else {
+                        dp.message("Delete failed!", {type: "error"});
+                        loadEvents();
+                    }
+                },
+                "json"
+            );
         },
 
         onTimeRangeSelected: function (args) {
             var modal = new DayPilot.Modal();
             modal.closed = function() {
                 dp.clearSelection();
-
                 var data = this.result;
                 if (data && data.result === "OK") {
                     loadEvents();
@@ -76,43 +162,17 @@ $(function() {
                     loadEvents();
                 }
             };
-        },
-
-        onEventMoved: function(args) {
-            $.post("backend_update.php", {
-                id: args.e.data.id,
-                start: args.newStart.toString(),
-                end: args.newEnd.toString(),
-                room: args.newResource,
-                name: args.e.data.text,
-                status: args.e.data.status,
-                paid: args.e.data.paid
-            }, loadEvents);
-        },
-
-        onEventResized: function(args) {
-            $.post("backend_update.php", {
-                id: args.e.data.id,
-                start: args.newStart.toString(),
-                end: args.newEnd.toString(),
-                room: args.e.data.resource,
-                name: args.e.data.text,
-                status: args.e.data.status,
-                paid: args.e.data.paid
-            }, loadEvents);
-        },
-
-        onEventDeleted: function(args) {
-            $.post("backend_delete.php", { id: args.e.data.id }, loadEvents);
         }
-
     });
 
     dp.init();
 
-    dp.rows.load("backend_rooms.php");
-
-    loadEvents();
+    function loadResources() {
+        const capacity = $("#filterRooms").val();
+        dp.rows.load("backend_rooms.php?capacity=" + encodeURIComponent(capacity), function() {
+            loadEvents();
+        });
+    }
 
     function loadEvents() {
         var start = dp.visibleStart();
@@ -130,16 +190,9 @@ $(function() {
         );
     }
 
-       $("#filterRooms").on("change", function() {
-         const value = this.value;
-         if (value === "all") {
-             dp.rows.filter(null);
-         } else {
-             dp.rows.filter(function(row) {
-                 return String(row.data.capacity) === value;
-             });
-         }
-     });
+    $("#filterRooms").on("change", function () {
+        loadResources();
+    });
 
     $("#timerange").on("change", function() {
         const value = this.value;
@@ -148,7 +201,8 @@ $(function() {
         } else if (value === "week") {
             dp.days = 7;
         } else if (value === "month") {
-            dp.days = DayPilot.Date.parse(dp.startDate).daysInMonth();
+            dp.startDate = DayPilot.Date.today().firstDayOfMonth();
+            dp.days = DayPilot.Date.today().daysInMonth();
         }
         dp.update();
         loadEvents();
@@ -159,4 +213,16 @@ $(function() {
         dp.update();
     });
 
+    // Додаємо обробник для кнопки "Додати кімнату"
+    $("#addRoomBtn").on("click", function() {
+        var modal = new DayPilot.Modal();
+        modal.closed = function() {
+            if (this.result && this.result.result === "OK") {
+                loadResources();
+            }
+        };
+        modal.showUrl("room_new.php");
+    });
+
+    loadResources();
 });

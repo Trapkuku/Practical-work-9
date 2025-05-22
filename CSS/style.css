@@ -71,3 +71,29 @@ footer {
 .scheduler-frame .scheduler_default_main {
     border-radius: 0;
 }
+
+
+
+.addRoomBtn{
+    background-color: #1a73e8;
+    color: #fff;
+    border: none;
+    padding: 8px 22px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 1px 6px rgba(60, 60, 60, 0.08);
+    transition: background 0.18s, transform 0.12s;
+    cursor: pointer;
+    margin-left: 20px;
+    margin-right: 5px;
+    outline: none;
+}
+.button-add-room:hover {
+    background-color: #155ab6;
+    transform: translateY(-1px) scale(1.02);
+}
+.button-add-room:active {
+    background-color: #194fa1;
+    transform: scale(0.98);
+}

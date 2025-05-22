@@ -20,20 +20,18 @@
         bottom: 2px;
         left: 2px;
         background-color: transparent;
-        border-left: 5px solid #1a9d13; /* green по умолчанию */
+        border-left: 5px solid #1a9d13;
         border-right: 0px none;
     }
     .status_dirty.scheduler_default_rowheadercol2 .scheduler_default_rowheader_inner {
-        border-left: 5px solid #ea3624; /* red */
+        border-left: 5px solid #ea3624;
     }
     .status_cleanup.scheduler_default_rowheadercol2 .scheduler_default_rowheader_inner {
-        border-left: 5px solid #f9ba25; /* orange */
+        border-left: 5px solid #f9ba25;
     }
     .status_ready.scheduler_default_rowheadercol2 .scheduler_default_rowheader_inner {
-        border-left: 5px solid #1a9d13; /* green */
+        border-left: 5px solid #1a9d13;
     }
-
-
 </style>
 <div class="main-frame">
     <header>
@@ -45,10 +43,10 @@
         <span class="demo-label"></span>
         <label>Show rooms:
             <select id="filterRooms">
-                <option value="all" selected>All</option>
-                <option value="1">1 bed</option>
-                <option value="2">2 beds</option>
-                <option value="4">4 beds</option>
+                <option value="0">All</option>
+                <option value="1">Single</option>
+                <option value="2">Double</option>
+                <option value="4">Family</option>
             </select>
         </label>
         <label>Time range:
@@ -61,6 +59,9 @@
         <label>
             <input type="checkbox" id="autoWidth"> Auto Cell Width
         </label>
+        <button class="button-add-room" id="addRoomBtn">
+            <span style="font-size: 18px; vertical-align: middle; margin-right: 6px;">&#43;</span> Додати кімнату
+        </button>
     </div>
     <div class="scheduler-frame">
         <div id="dp"></div>
