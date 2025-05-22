@@ -45,7 +45,7 @@
         <span class="demo-label"></span>
         <label>Show rooms:
             <select id="filterRooms">
-                <option value="all">All</option>
+                <option value="all" selected>All</option>
                 <option value="1">1 bed</option>
                 <option value="2">2 beds</option>
                 <option value="4">4 beds</option>
