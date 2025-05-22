@@ -71,20 +71,23 @@ $rooms = $db->query('SELECT * FROM rooms');
     </form>
 </div>
 <script>
-    function close(result) {
+<script>
+    function close() {
         if (parent && parent.DayPilot && parent.DayPilot.Modal) {
-        parent.DayPilot.Modal.close({result: "OK"});
+            parent.DayPilot.Modal.close({result: "OK"});
         } else {
-        window.close();
-}
+            window.close();
+        }
     }
 
-    $("#f").submit(function () {
+    $("#f").on("submit", function(e){
+        e.preventDefault();
         var f = $("#f");
-        $.post(f.attr("action"), f.serialize(), function (result) {
-            close(eval(result));
-        });
-        return false;
+        $.post(f.attr("action"), f.serialize(), function(data){
+            if (data && data.result === "OK") {
+                close();
+            }
+        }, "json");
     });
 
     $(document).ready(function () {
