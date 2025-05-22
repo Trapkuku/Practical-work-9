@@ -72,9 +72,11 @@ $rooms = $db->query('SELECT * FROM rooms');
 </div>
 <script>
     function close(result) {
-        if (parent && parent.DayPilot && parent.DayPilot.ModalStatic) {
-            parent.DayPilot.ModalStatic.close(result);
-        }
+        if (parent && parent.DayPilot && parent.DayPilot.Modal) {
+        parent.DayPilot.Modal.close({result: "OK"});
+        } else {
+        window.close();
+}
     }
 
     $("#f").submit(function () {
