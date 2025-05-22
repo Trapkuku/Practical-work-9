@@ -1,11 +1,19 @@
 <?php
+error_reporting(E_ALL & ~E_DEPRECATED); // или полностью отключить ошибки на проде
+
 require_once '_db.php';
+
+class Room {
+    public int $id;
+    public string $name;
+    public int $capacity;
+    public string $status;
+}
 
 $stmt = $db->prepare("SELECT * FROM rooms ORDER BY name");
 $stmt->execute();
 $rooms = $stmt->fetchAll();
 
-class Room {}
 $result = array();
 
 foreach($rooms as $room) {
