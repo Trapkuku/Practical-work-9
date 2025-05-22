@@ -71,8 +71,7 @@ $rooms = $db->query('SELECT * FROM rooms');
     </form>
 </div>
 <script>
-<script>
-    function close() {
+    function closeModal() {
         if (parent && parent.DayPilot && parent.DayPilot.Modal) {
             parent.DayPilot.Modal.close({result: "OK"});
         } else {
@@ -84,8 +83,11 @@ $rooms = $db->query('SELECT * FROM rooms');
         e.preventDefault();
         var f = $("#f");
         $.post(f.attr("action"), f.serialize(), function(data){
+            // Перевіряємо JSON-відповідь від backend_update.php
             if (data && data.result === "OK") {
-                close();
+                closeModal();
+            } else if (data && data.message) {
+                alert(data.message);
             }
         }, "json");
     });
