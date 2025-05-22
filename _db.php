@@ -1,11 +1,12 @@
 <?php
-$host = "127.0.0.1";
+$host = "mysql.railway.internal";
 $port = 3306;
 $username = "root";
-$password = "";
-$database = "project_reservation";
+$password = "aQmCyKNKWKAKEQNdUEkCjshVXbEoULgd";
+$database = "railway";
 
-$db = new PDO("mysql:host=$host;port=$port", $username, $password);
+$db = new PDO("mysql:host=$host;port=$port;dbname=$database", $username, $password, [
+    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+]);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$db->exec("USE `$database`");
 ?>
