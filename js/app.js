@@ -2,14 +2,14 @@ $(function() {
 
     const dp = new DayPilot.Scheduler("dp", {
 
-        cellWidth: 50,
+        cellWidth: 100,
         cellWidthSpec: "Fixed",
         heightSpec: "Max",
         rowHeaderWidth: 160,
         rowHeaderColumns: [
             { title: "Room", display: "name", width: 80 },
-            { title: "Capacity", display: "capacity", width: 60 },
-            { title: "Status", display: "status", width: 20 }
+            { title: "Capacity", display: "capacity", width: 80 },
+            { title: "Status", display: "status", width: 80 }
         ],
         scale: "Day",
         startDate: "2025-05-20",
@@ -26,19 +26,18 @@ $(function() {
         eventResizeHandling: "Update",
 
         onBeforeRowHeaderRender: function(args) {
-            const columns = args.row.columns;
-            columns[1].html = `${args.row.data.capacity} bed${args.row.data.capacity > 1 ? "s" : ""}`;
-            const statusColors = {
-                "Ready": "#57b540",
-                "Cleanup": "#f5c447",
-                "Dirty": "#e43d27",
-                "available": "#57b540",
-                "occupied": "#e69138",
-                "maintenance": "#fa3f3f"
-            };
-            columns[2].backColor = statusColors[args.row.data.status] || "#b0b0b0";
-        },
+            args.row.columns[1].html = `${args.row.data.capacity} bed${args.row.data.capacity > 1 ? "s" : ""}`;
+            args.row.columns[2].html = args.row.data.status;
 
+            args.row.cssClass = "";
+            if (args.row.data.status === "Dirty") {
+                args.row.cssClass = "status_dirty";
+            } else if (args.row.data.status === "Cleanup") {
+                args.row.cssClass = "status_cleanup";
+            } else if (args.row.data.status === "Ready") {
+                args.row.cssClass = "status_ready";
+            }
+        },
 
         onBeforeEventRender: function(args) {
             const barColors = {
@@ -52,19 +51,20 @@ $(function() {
                 "cancelled": "#cc0000"
             };
             args.data.barColor = barColors[args.data.status] || "#999";
-
             args.data.html = `${args.data.text}<br/><small>Paid: ${args.data.paid * 100}%</small>`;
         },
 
-        onTimeRangeSelected: function(args) {
+        onTimeRangeSelected: function (args) {
             var modal = new DayPilot.Modal();
-            modal.showUrl("new.php?start=" + args.start + "&end_date=" + args.end + "&resource=" + args.resource);
             modal.closed = function() {
-                if (this.result) {
+                dp.clearSelection();
+
+                var data = this.result;
+                if (data && data.result === "OK") {
                     loadEvents();
                 }
             };
-            dp.clearSelection();
+            modal.showUrl("new.php?start=" + args.start + "&end=" + args.end + "&resource=" + args.resource);
         },
 
         onEventClick: function(args) {
@@ -82,7 +82,7 @@ $(function() {
             $.post("backend_update.php", {
                 id: args.e.data.id,
                 start: args.newStart.toString(),
-                end_date: args.newEnd.toString(),
+                end: args.newEnd.toString(),
                 room: args.newResource,
                 name: args.e.data.text,
                 status: args.e.data.status,
@@ -94,7 +94,7 @@ $(function() {
             $.post("backend_update.php", {
                 id: args.e.data.id,
                 start: args.newStart.toString(),
-                end_date: args.newEnd.toString(),
+                end: args.newEnd.toString(),
                 room: args.e.data.resource,
                 name: args.e.data.text,
                 status: args.e.data.status,
@@ -115,7 +115,19 @@ $(function() {
     loadEvents();
 
     function loadEvents() {
-        dp.events.load("backend_events.php");
+        var start = dp.visibleStart();
+        var end = dp.visibleEnd();
+
+        $.post("backend_events.php",
+            {
+                start: start ? start.toString() : "",
+                end: end ? end.toString() : ""
+            },
+            function(data) {
+                dp.events.list = data;
+                dp.update();
+            }
+        );
     }
 
     $("#filterRooms").on("change", function() {
@@ -139,6 +151,7 @@ $(function() {
             dp.days = DayPilot.Date.parse(dp.startDate).daysInMonth();
         }
         dp.update();
+        loadEvents();
     });
 
     $("#autoWidth").on("change", function() {

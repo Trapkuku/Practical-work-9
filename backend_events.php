@@ -9,14 +9,14 @@ class Event {}
 $events = array();
 
 foreach($result as $row) {
-    if (empty($row['name']) || empty($row['start']) || empty($row['end_date']) || empty($row['room_id'])) {
+    if (empty($row['name']) || empty($row['start']) || empty($row['end']) || empty($row['room_id'])) {
         continue;
     }
     $e = new Event();
     $e->id = $row['id'];
     $e->text = $row['name'];
     $e->start = $row['start'];
-    $e->end_date = $row['end_date'];
+    $e->end = $row['end'];
     $e->resource = $row['room_id'];
     $e->status = $row['status'];
     $e->paid = $row['paid'];

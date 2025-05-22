@@ -39,16 +39,27 @@ $resource = isset($_GET['resource']) ? $_GET['resource'] : '';
 
         <div class="btn">
             <input type="submit" value="Save" />
-            <a href="javascript:window.close();">Cancel</a>
+            <a href="#" onclick="cancelModal();return false;">Cancel</a>
         </div>
+
+
     </form>
+
 </div>
 <script>
+    function cancelModal() {
+        if (parent && parent.DayPilot && parent.DayPilot.Modal) {
+        parent.DayPilot.Modal.close();
+        } else {
+        window.close();
+        }
+    }
+
     $("#f").on("submit", function(e){
         e.preventDefault();
         $.post("backend_create.php", $(this).serialize(), function(data){
             if (parent && parent.DayPilot && parent.DayPilot.Modal) {
-                parent.DayPilot.Modal.close("OK");
+                parent.DayPilot.Modal.close({result: "OK"});
             } else {
                 window.close();
             }

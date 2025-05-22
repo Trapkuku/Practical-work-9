@@ -8,6 +8,33 @@
     <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body>
+<style>
+    .scheduler_default_rowheader_inner {
+        border-right: 1px solid #ccc;
+    }
+    .scheduler_default_rowheader.scheduler_default_rowheadercol2 {
+        background: #fff;
+    }
+    .scheduler_default_rowheadercol2 .scheduler_default_rowheader_inner {
+        top: 2px;
+        bottom: 2px;
+        left: 2px;
+        background-color: transparent;
+        border-left: 5px solid #1a9d13; /* green по умолчанию */
+        border-right: 0px none;
+    }
+    .status_dirty.scheduler_default_rowheadercol2 .scheduler_default_rowheader_inner {
+        border-left: 5px solid #ea3624; /* red */
+    }
+    .status_cleanup.scheduler_default_rowheadercol2 .scheduler_default_rowheader_inner {
+        border-left: 5px solid #f9ba25; /* orange */
+    }
+    .status_ready.scheduler_default_rowheadercol2 .scheduler_default_rowheader_inner {
+        border-left: 5px solid #1a9d13; /* green */
+    }
+
+
+</style>
 <div class="main-frame">
     <header>
         <h1 id="logo">HTML5 Бронювання кімнат в готелі (JavaScript/PHP)</h1>

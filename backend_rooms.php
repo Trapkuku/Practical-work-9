@@ -1,22 +1,22 @@
 <?php
 require_once '_db.php';
 
-$stmt = $db->prepare("SELECT * FROM rooms");
+$stmt = $db->prepare("SELECT * FROM rooms ORDER BY name");
 $stmt->execute();
-$rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$rooms = $stmt->fetchAll();
 
 class Room {}
-$roomList = array();
+$result = array();
 
-foreach($rooms as $r) {
-    $room = new Room();
-    $room->id = $r['id'];
-    $room->name = $r['name'];
-    $room->capacity = $r['capacity'];
-    $room->status = $r['status'];
-    $roomList[] = $room;
+foreach($rooms as $room) {
+    $r = new Room();
+    $r->id = $room['id'];
+    $r->name = $room['name'];
+    $r->capacity = $room['capacity'];
+    $r->status = $room['status'];
+    $result[] = $r;
 }
 
 header('Content-Type: application/json');
-echo json_encode($roomList);
+echo json_encode($result);
 ?>

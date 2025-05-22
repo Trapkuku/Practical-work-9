@@ -1,16 +1,13 @@
 <?php
 require_once '_db.php';
 
-
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id == 0) { die("Invalid reservation id"); }
-
 
 $stmt = $db->prepare("SELECT * FROM reservations WHERE id = :id");
 $stmt->bindParam(':id', $id);
 $stmt->execute();
 $reservation = $stmt->fetch(PDO::FETCH_ASSOC);
-
 
 $rooms = $db->query('SELECT * FROM rooms');
 ?>
@@ -20,6 +17,7 @@ $rooms = $db->query('SELECT * FROM rooms');
     <meta charset="UTF-8">
     <title>Edit Reservation</title>
     <link rel="stylesheet" href="CSS/style_edit_reservation.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
 <div class="modal">
@@ -31,7 +29,7 @@ $rooms = $db->query('SELECT * FROM rooms');
         <input type="text" name="start" value="<?php echo htmlspecialchars($reservation['start']); ?>" />
 
         <label>End:</label>
-        <input type="text" name="end_date" value="<?php echo htmlspecialchars($reservation['end_date']); ?>" />
+        <input type="text" name="end" value="<?php echo htmlspecialchars($reservation['end']); ?>" />
 
         <label>Room:</label>
         <select name="room">
@@ -72,5 +70,24 @@ $rooms = $db->query('SELECT * FROM rooms');
         </div>
     </form>
 </div>
+<script>
+    function close(result) {
+        if (parent && parent.DayPilot && parent.DayPilot.ModalStatic) {
+            parent.DayPilot.ModalStatic.close(result);
+        }
+    }
+
+    $("#f").submit(function () {
+        var f = $("#f");
+        $.post(f.attr("action"), f.serialize(), function (result) {
+            close(eval(result));
+        });
+        return false;
+    });
+
+    $(document).ready(function () {
+        $("input[name='name']").focus();
+    });
+</script>
 </body>
 </html>
