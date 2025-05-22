@@ -130,16 +130,16 @@ $(function() {
         );
     }
 
-    $("#filterRooms").on("change", function() {
-        const value = this.value;
-        if (value === "all") {
-            dp.rows.filter(null);
-        } else {
-            dp.rows.filter(function(row) {
-                return String(row.data.capacity) === value;
-            });
-        }
-    });
+       $("#filterRooms").on("change", function() {
+         const value = this.value;
+         if (value === "all") {
+             dp.rows.filter(null);
+         } else {
+             dp.rows.filter(function(row) {
+                 return String(row.data.capacity) === value;
+             });
+         }
+     });
 
     $("#timerange").on("change", function() {
         const value = this.value;
