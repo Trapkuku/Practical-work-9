@@ -13,12 +13,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->bindParam(':status', $status);
     $stmt->execute();
 
-    class Result {}
-    $response = new Result();
-    $response->result = "OK";
-    $response->message = "Room added";
-
-    // Ответ для AJAX
+    // Відповідь для AJAX
+    $response = [
+        "result" => "OK",
+        "message" => "Room added"
+    ];
     header('Content-Type: application/json');
     echo json_encode($response);
     exit;
@@ -61,26 +60,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </form>
 </div>
 <script>
-    $("#cancelBtn").on("click", function () {
-        if (parent && parent.DayPilot && parent.DayPilot.ModalStatic) {
+    function closeModal() {
+        if (parent && parent.DayPilot && parent.DayPilot.Modal) {
+            parent.DayPilot.Modal.close({result: "OK"});
+        } else if (parent && parent.DayPilot && parent.DayPilot.ModalStatic) {
             parent.DayPilot.ModalStatic.close();
         } else {
             window.close();
         }
+    }
+
+    $("#cancelBtn").on("click", function () {
+        closeModal();
     });
 
     $("#roomForm").on("submit", function(e){
         e.preventDefault();
         $.post("room_new.php", $(this).serialize(), function(data){
-            if (data.result === "OK") {
-                if (parent && parent.DayPilot && parent.DayPilot.ModalStatic) {
-                    parent.DayPilot.ModalStatic.close({result: "OK"});
-                } else {
-                    alert("Кімнату додано!");
-                    window.close();
-                }
+            if (data && data.result === "OK") {
+                closeModal();
             } else {
-                alert(data.message || "Error!");
+                alert(data && data.message ? data.message : "Error!");
             }
         }, "json");
     });
