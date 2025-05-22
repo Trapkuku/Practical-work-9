@@ -11,7 +11,10 @@ $stmt->bindParam(':status', $_POST['status']);
 $stmt->bindParam(':paid', $_POST['paid']);
 $stmt->execute();
 
-class Result {}
+class Result {
+    public string $result;
+    public string $message;
+}
 $response = new Result();
 $response->result = 'OK';
 $response->message = 'Update successful';
