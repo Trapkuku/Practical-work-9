@@ -3,17 +3,11 @@ require_once '_db.php';
 
 $stmt = $db->prepare("SELECT * FROM rooms ORDER BY name");
 $stmt->execute();
-$rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$rooms = $stmt->fetchAll();
 
-// Описываем свойства явно!
-class Room {
-    public $id;
-    public $name;
-    public $capacity;
-    public $status;
-}
-
+class Room {}
 $result = array();
+
 foreach($rooms as $room) {
     $r = new Room();
     $r->id = $room['id'];
