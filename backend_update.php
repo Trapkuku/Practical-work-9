@@ -1,7 +1,10 @@
 <?php
 require_once '_db.php';
 
-class Result {}
+class Result {
+    public string $result;
+    public string $message;
+}
 
 $stmt = $db->prepare("UPDATE reservations SET start = :start, end = :end, room_id = :room, name = :name, status = :status, paid = :paid WHERE id = :id");
 $stmt->bindParam(':start', $_POST['start']);
@@ -19,5 +22,4 @@ $response->message = 'Update successful';
 
 header('Content-Type: application/json');
 echo json_encode($response);
-
 ?>
